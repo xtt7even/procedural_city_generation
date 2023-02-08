@@ -24,14 +24,18 @@ def getRule(vertex):
     x = (vertex.coords[0]+singleton.border[0])/(singleton.border[0]*2)
     y = (vertex.coords[1]+singleton.border[1])/(singleton.border[1]*2)
 
-    population_density = np.sqrt((singleton.img2[singleton.img2.shape[0]-y*singleton.img2.shape[0]][x*singleton.img2.shape[1]][0])/255)
+    idx_x = int(np.floor(singleton.img2.shape[0]-y*singleton.img2.shape[0]))
+    idx_y = int(np.floor(x*singleton.img2.shape[1]))
+    population_density = np.sqrt((singleton.img2[idx_x][idx_y][0])/255)
     if vertex.seed:
         return (4, None, population_density)
 
 
     if not vertex.minor_road:
         #Finds the relative position of the vertex on the growth_rule_image
-        intrule=np.argmax(singleton.img[singleton.img.shape[0]-y*singleton.img.shape[0]][x*singleton.img.shape[1]])
+        idx_x = int(singleton.img.shape[0]-y*singleton.img.shape[0])
+        idx_y = int(x*singleton.img.shape[1]) 
+        intrule=np.argmax(singleton.img[idx_x][idx_y])
         z=(0, 0)
 
         #If the rule is radial, find the closest radial center

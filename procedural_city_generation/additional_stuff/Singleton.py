@@ -9,6 +9,8 @@ class Singleton:
 
     class __Singleton:
         def __init__(self, modulename=None):
+
+
             import procedural_city_generation
             import os
             import json
@@ -16,7 +18,10 @@ class Singleton:
                 path=os.path.dirname(procedural_city_generation.__file__)
                 with open(path+"/inputs/"+modulename+".conf", 'r') as f:
                     d=json.loads(f.read())
+
+
                 for k, v in d.items():
+                    print('setattr',k,v["value"])
                     setattr(self, k, v["value"])
             else:
                 print( "Warning, Singleton instanciated without parsing a json file. Please specify the modulename parameter to avoid errors")
