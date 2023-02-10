@@ -27,26 +27,21 @@ from panda3d.egg import EggCoordinateSystem, EggData, EggVertexPool, EggVertex, 
 
 
 def updateWindingOrder(tri,points):
-    """for i in range(len(tri) - 1):
-        v1 = points[tri[i]]
-        v2 = points[tri[i+1]]
-
-        if (v1[0] - v2[0] < 0 or
-            v1[1] - v2[1] < 0 or
-            v1[2] - v[2] < 0):
-            tmp = tri[i]
-            tri[i] = tri[i+1]
-            tri[i+1] = tmp
-    return tri
-    """
     v = LVector3f(0,0,1)
 
-    for i in range(len(tri) - 2):
-        a = LVector3f(points[tri[i]][0],points[tri[i]][1],points[tri[i]][2])
-        b = LVector3f(points[tri[i+1]][0],points[tri[i+1]][1],points[tri[i+1]][2])
-        c = LVector3f(points[tri[i+2]][0],points[tri[i+2]][1],points[tri[i+2]][2])
-        n = (b-a).cross(c-a)
-        w = n.dot(a-v)
+    
+    p1 = LVector3f(points[tri[0]][0],points[tri[0]][1],points[tri[0]][2])
+    p2 = LVector3f(points[tri[1]][0],points[tri[1]][1],points[tri[1]][2])
+    p3 = LVector3f(points[tri[2]][0],points[tri[2]][1],points[tri[2]][2])
+    a = p1 - p2
+    b = p3 - p1
+    n = LVector3f(
+                a[1] * b[2] - a[2] * b[1],
+                a[2] * b[0] - a[0] * b[2],
+                a[0] * b[1] - a[1] * b[0]
+            )
+    w = n.dot(v)
+
     if w < 0:
         return tri
     else:
@@ -82,9 +77,11 @@ def fromPyDataEgg(points,triangles):
 
         data.addChild(poly)
 
+    data.stripNormals()
     data.writeEgg('test.egg')
-    loader.loadModel('test.egg').reparentTo(render)
-
+    model = loader.loadModel('test.egg')
+    model.reparentTo(render)
+    
 
 def fromPyData(points,triangles):
     vdata = GeomVertexData('vertices',GeomVertexFormat.getV3n3t2(),Geom.UHStatic)
@@ -127,6 +124,7 @@ def fromPyData(points,triangles):
 
 def createGround(points, triangles):
     fromPyDataEgg(points,triangles)
+    print('Ground: OK')
     
 
 def createBuilding(verts,faces,texname,texscale,shrinkwrap):
@@ -143,6 +141,7 @@ def createBuildings(polygons):
         texscale = polygon[3]
         shrinkwrap = polygon[4]
         createBuilding(verts,faces,texname,texscale,shrinkwrap)
+    print('Buildings: OK')
 
 
 def finalize():
@@ -166,6 +165,7 @@ def finalize():
     with open(path+"/outputs/"+conf_values[u'input_name'][u'value']+".txt", 'rb') as f:
         polygons=pickle.loads(f.read())
 
+    #NOTE: debug code: it generates a flat plane
     """points = []
     triangles = []
     for i in range(0,10):
