@@ -6,10 +6,10 @@ class Generator(ShowBase):
     def __init__(self):
         ShowBase.__init__(self)
 
-        #Connector.generateCity()
+        Connector.generateCity()
         Connector.finalize()
 
-        base.disableMouse()
+        #base.disableMouse()
         base.camera.setPos(0,0,500)
         base.camera.lookAt(0,0,0)
 

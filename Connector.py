@@ -181,4 +181,4 @@ def finalize():
             triangles.append(tri2)"""
 
     createGround(points,triangles)
-    #createBuildings(polygons)
+    createBuildings(polygons)
