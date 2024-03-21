@@ -31,12 +31,12 @@ def createtexture(name, scale, texturetype='REPEAT'):
     imagenode.image=bpy.data.images.load(path+"/visualization/Textures/"+name)
     imagenode.projection='BOX'
 #    imagenode.vector_type='Vector'
-    diffusenode=mat.node_tree.nodes["Diffuse BSDF"]
+    diffusenode=mat.node_tree.nodes["Principled BSDF"]
     mat.node_tree.links.new(imagenode.outputs['Color'], diffusenode.inputs[0])
 
     mappingnode=mat.node_tree.nodes.new("ShaderNodeMapping")
     mappingnode.vector_type='VECTOR'
-    mappingnode.scale=(scale, scale, scale)
+    mappingnode.inputs['Scale'].default_value=(scale, scale, scale)
     mat.node_tree.links.new(mappingnode.outputs[0], imagenode.inputs[0])
 
 
@@ -109,7 +109,7 @@ def createobject(verts, faces, texname, texscale, shrinkwrap):
         wrap.target=bpy.context.scene.objects['Floormesh']
         wrap.offset=conf_values[u'offset'][u'value']
 
-    bpy.context.scene.objects.link(ob)
+    bpy.context.collection.objects.link(ob)
 
 def setupscenery():
     """
@@ -130,7 +130,7 @@ def setupscenery():
     try:
         bpy.data.lamps["Lamp"].type="SUN"
     except:
-        bpy.ops.object.lamp_add(type='SUN', location=(4.076245, 4.076245, 4.076245))
+        bpy.ops.object.light_add(type='SUN', location=(4.076245, 4.076245, 4.076245))
         bpy.context.scene.objects['Sun'].name = 'Lamp'
 
 def main(points, triangles, polygons):
@@ -155,7 +155,7 @@ def main(points, triangles, polygons):
     #TODO: Not flexible code.
     me.materials.append(createtexture("Floor02.jpg", 100, True))
 
-    bpy.context.scene.objects.link(ob)
+    bpy.context.collection.objects.link(ob)
 
 
 
