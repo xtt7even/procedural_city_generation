@@ -98,7 +98,7 @@ def createobject(verts, faces, texname, texscale, shrinkwrap):
         ob.modifiers.new("Subsurf", type="SUBSURF")
         subsurf=ob.modifiers["Subsurf"]
         subsurf.subdivision_type="SIMPLE"
-        subsurf.levels=6
+        subsurf.levels=4
         subsurf.render_levels=4
 
         ob.modifiers.new("Shrinkwrap", type='SHRINKWRAP')
@@ -117,12 +117,9 @@ def setupscenery():
     In the future could provide options like "time of day", "weather",
     "renderengine".
     """
+
+    #deleteDefaultCube() 
     bpy.context.scene.render.engine="CYCLES"
-    try:
-        startup_cube=bpy.context.scene.objects.get("Cube")
-        bpy.context.scene.objects.unlink(startup_cube)
-    except:
-        pass
 
     if bpy.data.objects.get("Camera") is None:
         bpy.ops.object.camera_add(view_align=True, location=(1.91961, -3.53902, 1.84546), rotation=(1.141, 1.56617e-08, 0.497))
@@ -132,6 +129,14 @@ def setupscenery():
     except:
         bpy.ops.object.light_add(type='SUN', location=(4.076245, 4.076245, 4.076245))
         bpy.context.scene.objects['Sun'].name = 'Lamp'
+
+def exportCity():
+    bpy.ops.object.select_all(action='DESELECT')
+
+    for obj in bpy.data.collections['Collection'].objects: 
+        obj.select_set(True)
+
+    bpy.ops.export_scene.gltf(filepath="./city3.glb", use_selection=True, export_apply=True)
 
 def main(points, triangles, polygons):
     """
@@ -164,18 +169,30 @@ def main(points, triangles, polygons):
     for poly in polygons:
         verts, faces, texname, texscale, shrinkwrap= poly
         createobject(verts, faces, texname, texscale, shrinkwrap)
+    
+    exportCity()
 
+def deleteDefaultCube ():
+    if "Cube" in bpy.data.objects:
+        # Deselect all objects to ensure only the desired object is selected for deletion
+        bpy.ops.object.select_all(action='DESELECT')
 
+        # Set the 'Cube' as the active object and select it
+        bpy.context.view_layer.objects.active = bpy.data.objects['Cube']
+        bpy.data.objects['Cube'].select_set(True)
 
+        # Delete the selected object
+        bpy.ops.object.delete()
 if __name__ == '__main__':
 
     import pickle
     global path
     import os
-    path=os.path.dirname(__file__)+"/.."
+    # path=os.path.dirname(__file__)+"/.."
     ### IF ON WINDOWS, OPEN THIS FILE WITH BLENDER AND OVERWRITE       ###
     ### FOLLOWING LINE WITH YOUR PATH AND UNCOMMENT THE FOLLOWING LINE ###
-    # path = "/home/jonathan/procedural_city_generation/procedural_city_generation/"
+    os.chdir("../procedural_city_generation/procedural_city_generation/")
+    path = os.getcwd()
     import json
     global conf_values
 
@@ -183,9 +200,14 @@ if __name__ == '__main__':
         conf_values=json.loads(f.read())
     with open(path+"/temp/"+conf_values[u'input_name'][u'value']+"_heightmap.txt", 'r') as f:
         filename=f.read()
+        print(path+"/temp/"+conf_values[u'input_name'][u'value']+"_heightmap.txt")
     with open(path+"/temp/"+filename, 'rb') as f:
         points, triangles = pickle.loads(f.read())
+        print(path+"/temp/"+filename)
 
     with open(path+"/outputs/"+conf_values[u'input_name'][u'value']+".txt", 'rb') as f:
         polygons=pickle.loads(f.read())
+        print(path+"/outputs/"+conf_values[u'input_name'][u'value']+".txt")
+    
+    deleteDefaultCube()
     main(points, triangles, polygons)
